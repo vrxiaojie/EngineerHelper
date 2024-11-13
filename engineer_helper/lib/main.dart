@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'PowerPage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
-                    label: Text('Home'),
+                    label: Text('主页'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.power),
@@ -85,9 +86,95 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 // 主页面
+
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Home Page'));
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Flex(
+        direction: Axis.vertical, // 设置为垂直方向布局
+        children: [
+          // 第一行：两个容器
+          Flexible(
+            flex: 1, // 控制占用空间比例
+            child: Row(
+              children: [
+                // 第一个容器：大标题
+                Flexible(
+                  flex: 2, // 大标题占用更多空间
+                  child: Container(
+                    alignment: Alignment.center,
+                    color: Colors.blue[100],
+                    child: Text(
+                      '电子工程师助手',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineLarge
+                          ?.copyWith(fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                // 第二个容器：图片
+                Flexible(
+                  flex: 1, // 图片占用剩余空间
+                  child: Container(
+                    alignment: Alignment.center,
+                    color: Colors.blue[50],
+                    child: Image.asset(
+                      'assets/bilibili.png', // 确保图片存在
+                      height: 60, // 限制图片高度
+                      fit: BoxFit.contain, // 保证图片适应容器
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16), // 添加空隙
+          // 第三行：GitHub logo
+          Flexible(
+            flex: 1,
+            child: GestureDetector(
+              onTap: () async {
+                // 使用 url_launcher 跳转到GitHub
+                final url = Uri.parse('https://github.com');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+              child: Container(
+                alignment: Alignment.center,
+                color: Colors.blue[50],
+                child: Image.asset(
+                  'assets/github.png', // 确保图片存在
+                  height: 60, // 限制图片高度
+                  fit: BoxFit.contain, // 保证图片适应容器
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16), // 添加空隙
+          // 第四行：版本号
+          Flexible(
+            flex: 1,
+            child: Container(
+              alignment: Alignment.center,
+              color: Colors.blue[100],
+              child: Text(
+                'V0.0.1',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineLarge
+                    ?.copyWith(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
