@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // 电源页面
 class PowerPage extends StatefulWidget {
@@ -92,6 +95,20 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
   final TextEditingController lController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // 给Vinmin设置初始值
+    vinMinController.text = '5.0'; // 初始值设为 5.0 或其他值
+    vinMaxController.text = '5.0';
+    vOutController.text = '5.0';
+    vOutController.text = '3.3';
+    iOutController.text = '1.0';
+    fController.text = '1.0';
+    cinController.text = '10.0';
+    coutController.text = '10.0';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Padding(
@@ -111,9 +128,22 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: vinMinController,
-                      decoration: InputDecoration(labelText: 'Vinmin'),
+                      decoration: InputDecoration(
+                        labelText: '最小输入电压Vinmin',
+                        suffixText: 'V',
+                      ),
+                      // onTap: () {
+                      //   ScaffoldMessenger.of(context).showSnackBar(
+                      //     SnackBar(content: Text('1222')),
+                      //   );
+                      // },
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*$')),
+                        // 只允许数字和小数点
+                      ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return '请输入Vinmin';
@@ -126,7 +156,10 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: vinMaxController,
-                      decoration: InputDecoration(labelText: 'Vinmax'),
+                      decoration: InputDecoration(
+                        labelText: '最大输入电压Vinmax',
+                        suffixText: 'V',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -141,7 +174,10 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: vOutController,
-                      decoration: InputDecoration(labelText: 'Vout'),
+                      decoration: InputDecoration(
+                        labelText: '输出电压Vout',
+                        suffixText: 'V',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -162,7 +198,10 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: iOutController,
-                      decoration: InputDecoration(labelText: 'Iout'),
+                      decoration: InputDecoration(
+                        labelText: '输出电流Iout',
+                        suffixText: 'A',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -177,7 +216,10 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: fController,
-                      decoration: InputDecoration(labelText: 'f'),
+                      decoration: InputDecoration(
+                        labelText: '开关频率f',
+                        suffixText: 'MHz',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -192,7 +234,10 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: cinController,
-                      decoration: InputDecoration(labelText: 'Cin'),
+                      decoration: InputDecoration(
+                        labelText: '输入电容Cin',
+                        suffixText: 'uF',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -213,7 +258,10 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: coutController,
-                      decoration: InputDecoration(labelText: 'Cout'),
+                      decoration: InputDecoration(
+                        labelText: '输出电容Cout',
+                        suffixText: 'uF',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
@@ -228,30 +276,24 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: cinEsrController,
-                      decoration: InputDecoration(labelText: 'Cin_ESR'),
+                      decoration: InputDecoration(
+                        labelText: '输入电容直流等效电阻Cin_ESR(可选)',
+                        suffixText: 'mΩ',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '请输入Cin_ESR';
-                        }
-                        return null;
-                      },
                     ),
                   ),
                   SizedBox(width: 8),
                   Expanded(
                     child: TextFormField(
                       controller: coutEsrController,
-                      decoration: InputDecoration(labelText: 'Cout_ESR'),
+                      decoration: InputDecoration(
+                        labelText: '输出电容直流等效电阻Cout_ESR(可选)',
+                        suffixText: 'mΩ',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '请输入Cout_ESR';
-                        }
-                        return null;
-                      },
                     ),
                   ),
                 ],
@@ -264,15 +306,12 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   Expanded(
                     child: TextFormField(
                       controller: lController,
-                      decoration: InputDecoration(labelText: 'L'),
+                      decoration: InputDecoration(
+                        labelText: '电感值L(可选)',
+                        suffixText: 'uH',
+                      ),
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '请输入L';
-                        }
-                        return null;
-                      },
                     ),
                   ),
                 ],
@@ -294,6 +333,29 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                     final cinEsr = double.tryParse(cinEsrController.text);
                     final coutEsr = double.tryParse(coutEsrController.text);
                     final l = double.tryParse(lController.text);
+
+                    // 检查 vinMin 是否大于 vinMax
+                    if (vinMin != null && vinMax != null && vinMin > vinMax) {
+                      // 弹窗警告用户
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('输入错误'),
+                            content: Text('Vinmin 不能大于 Vinmax'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('确定'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return; // 如果 vinMin 大于 vinMax，则返回，避免进行后续计算
+                    }
 
                     // 进行后台计算（示例）
                     print(
