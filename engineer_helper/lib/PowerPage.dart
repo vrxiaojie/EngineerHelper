@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -94,18 +94,77 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
   final TextEditingController coutEsrController = TextEditingController();
   final TextEditingController lController = TextEditingController();
 
+  String resultK = '',
+      resultDeltaVin = '',
+      resultDeltaVout = '',
+      resultIpeak = '',
+      resultIrms = '',
+      resultD = '',
+      resultTon = '',
+      resultToff = '',
+      resultIin = '';
   @override
   void initState() {
     super.initState();
-    // 给Vinmin设置初始值
-    vinMinController.text = '5.0'; // 初始值设为 5.0 或其他值
+    setDefaultValue();
+  }
+
+  void setDefaultValue() {
+    // 设置初始值
+    vinMinController.text = '5.0';
     vinMaxController.text = '5.0';
-    vOutController.text = '5.0';
-    vOutController.text = '3.3';
+    vOutController.text = '9.0';
     iOutController.text = '1.0';
     fController.text = '1.0';
     cinController.text = '10.0';
     coutController.text = '10.0';
+    cinEsrController.text = '0';
+    coutEsrController.text = '0';
+    lController.text = '1';
+    resultK = '';
+    resultDeltaVin = '';
+    resultDeltaVout = '';
+    resultIpeak = '';
+    resultIrms = '';
+    resultD = '';
+    resultTon = '';
+    resultToff = '';
+    resultIin = '';
+    setState(() {});
+  }
+
+  void calResult(
+      double? vinMin, vinMax, vOut, iOut, f, cin, cout, cinEsr, coutEsr, l) {
+    resultK =
+        (vinMin! / (l! * f! * iOut!) * (1 - (vinMin / vOut!)) * (vinMin / vOut))
+            .toStringAsFixed(3);
+
+    resultDeltaVin = ((vinMin / (l * f) * (1 - (vinMin / vOut))) *
+            (cinEsr! + 1 / (8 * f * cin!)))
+        .toStringAsFixed(3);
+
+    resultDeltaVout =
+        (((vOut * iOut / vinMin) + vinMin / (2 * l * f) * (1 - vinMin / vOut)) *
+                    coutEsr! +
+                iOut / (f * cout!) * (1 - vinMin / vOut))
+            .toStringAsFixed(3);
+
+    resultIpeak =
+        ((vOut * iOut / vinMin) + vinMin / (2 * f * l) * (1 - vinMin / vOut))
+            .toStringAsFixed(3);
+
+    resultIrms = (vOut * iOut / vinMin).toStringAsFixed(3);
+
+    resultD = ((1 - vinMax! / vOut) * 100).toStringAsFixed(1);
+
+    resultTon = ((1 - vinMax / vOut) / f).toStringAsFixed(3);
+
+    resultToff = (vinMax / (vOut * f)).toStringAsFixed(3);
+
+    resultIin = (vOut * iOut / vinMin).toStringAsFixed(3);
+
+    //更新状态
+    setState(() {});
   }
 
   @override
@@ -307,7 +366,7 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                     child: TextFormField(
                       controller: lController,
                       decoration: InputDecoration(
-                        labelText: '电感值L(可选)',
+                        labelText: '电感值L',
                         suffixText: 'uH',
                       ),
                       keyboardType:
@@ -316,53 +375,177 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 20),
 
-              // 提交按钮
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // 获取用户输入的值并进行后台计算
-                    final vinMin = double.tryParse(vinMinController.text);
-                    final vinMax = double.tryParse(vinMaxController.text);
-                    final vOut = double.tryParse(vOutController.text);
-                    final iOut = double.tryParse(iOutController.text);
-                    final f = double.tryParse(fController.text);
-                    final cin = double.tryParse(cinController.text);
-                    final cout = double.tryParse(coutController.text);
-                    final cinEsr = double.tryParse(cinEsrController.text);
-                    final coutEsr = double.tryParse(coutEsrController.text);
-                    final l = double.tryParse(lController.text);
+              Row(
+                children: [
+                  // 计算按钮
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          final vinMin = double.tryParse(vinMinController.text);
+                          final vinMax = double.tryParse(vinMaxController.text);
+                          final vOut = double.tryParse(vOutController.text);
+                          final iOut = double.tryParse(iOutController.text);
+                          final f = double.tryParse(fController.text);
+                          final cin = double.tryParse(cinController.text);
+                          final cout = double.tryParse(coutController.text);
+                          final cinEsr = double.tryParse(cinEsrController.text);
+                          final coutEsr =
+                              double.tryParse(coutEsrController.text);
+                          final l = double.tryParse(lController.text);
 
-                    // 检查 vinMin 是否大于 vinMax
-                    if (vinMin != null && vinMax != null && vinMin > vinMax) {
-                      // 弹窗警告用户
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('输入错误'),
-                            content: Text('Vinmin 不能大于 Vinmax'),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('确定'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                      return; // 如果 vinMin 大于 vinMax，则返回，避免进行后续计算
-                    }
+                          // Check if vinMin is greater than vinMax
+                          if (vinMin != null &&
+                              vinMax != null &&
+                              vinMin > vinMax) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('输入错误'),
+                                  content: Text('Vinmin 不能大于 Vinmax'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('确定'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            return;
+                          }
+                          calResult(vinMin, vinMax, vOut, iOut, f, cin, cout,
+                              cinEsr, coutEsr, l);
+                        }
+                      },
+                      icon: Icon(Icons.calculate), // Icon for calculate button
+                      label: Text('计算'),
+                    ),
+                  ),
+                  SizedBox(
+                      width: 16), // Increase the space between the two buttons
+                  // 重置按钮
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setDefaultValue(); // Reset values
+                      },
+                      icon: Icon(Icons.refresh), // Icon for reset button
+                      label: Text('重置'),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
 
-                    // 进行后台计算（示例）
-                    print(
-                        'Vinmin: $vinMin, Vinmax: $vinMax, Vout: $vOut, Iout: $iOut, f: $f, Cin: $cin, Cout: $cout, Cin_ESR: $cinEsr, Cout_ESR: $coutEsr, L: $l');
-                  }
-                },
-                child: Text('计算'),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('电感电流纹波率K:'),
+                        Text(resultK.isEmpty ? '' : resultK), // 用来显示计算结果
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('输入纹波ΔVin:'),
+                        Text(resultDeltaVin.isEmpty ? '' : '$resultDeltaVin V'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('输出纹波ΔVout:'),
+                        Text(resultDeltaVout.isEmpty
+                            ? ''
+                            : '$resultDeltaVout V'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('电感峰值电流 Ipeak:'),
+                        Text(resultIpeak.isEmpty ? '' : '$resultIpeak A'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('电感电流有效值Irms:'),
+                        Text(resultIrms.isEmpty ? '' : '$resultIrms A'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('占空比D:'),
+                        Text(resultD.isEmpty ? '' : '$resultD %'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                // ignore: prefer_const_literals_to_create_immutables
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('导通时间Ton:'),
+                        Text(resultTon.isEmpty ? '' : '$resultTon us'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('关断时间Toff:'),
+                        Text(resultToff.isEmpty ? '' : '$resultToff us'),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('平均输入电流 Iin:'),
+                        Text(resultIin.isEmpty ? '' : '$resultIin A'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
