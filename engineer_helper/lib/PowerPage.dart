@@ -139,15 +139,17 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
         (vinMin! / (l! * f! * iOut!) * (1 - (vinMin / vOut!)) * (vinMin / vOut))
             .toStringAsFixed(3);
 
-    resultDeltaVin = ((vinMin / (l * f) * (1 - (vinMin / vOut))) *
-            (cinEsr! + 1 / (8 * f * cin!)))
-        .toStringAsFixed(3);
+    resultDeltaVin = (((vinMin / (l * f) * (1 - (vinMin / vOut))) *
+                (cinEsr! + 1 / (8 * f * cin!))) *
+            1000)
+        .toStringAsFixed(0);
 
-    resultDeltaVout =
-        (((vOut * iOut / vinMin) + vinMin / (2 * l * f) * (1 - vinMin / vOut)) *
+    resultDeltaVout = ((((vOut * iOut / vinMin) +
+                        vinMin / (2 * l * f) * (1 - vinMin / vOut)) *
                     coutEsr! +
-                iOut / (f * cout!) * (1 - vinMin / vOut))
-            .toStringAsFixed(3);
+                iOut / (f * cout!) * (1 - vinMin / vOut)) *
+            1000)
+        .toStringAsFixed(0);
 
     resultIpeak =
         ((vOut * iOut / vinMin) + vinMin / (2 * f * l) * (1 - vinMin / vOut))
@@ -376,10 +378,9 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                 ],
               ),
               SizedBox(height: 20),
-
+              // 计算按钮
               Row(
                 children: [
-                  // 计算按钮
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
@@ -396,7 +397,7 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                               double.tryParse(coutEsrController.text);
                           final l = double.tryParse(lController.text);
 
-                          // Check if vinMin is greater than vinMax
+                          // 检查vin min 是否大于了vin max
                           if (vinMin != null &&
                               vinMax != null &&
                               vinMin > vinMax) {
@@ -417,8 +418,36 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                                 );
                               },
                             );
+                            vinMinController.text =
+                                double.tryParse(vinMaxController.text)
+                                    .toString();
                             return;
                           }
+                          // 检查vin max 是否大于了vout
+                          if (vinMax! >= vOut!) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('输入错误'),
+                                  content: Text('VinMax 不能大于等于 Vout'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('确定'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            vinMaxController.text =
+                                (double.tryParse(vOutController.text)! - 1)
+                                    .toString();
+                            return;
+                          }
+                          //计算结果
                           calResult(vinMin, vinMax, vOut, iOut, f, cin, cout,
                               cinEsr, coutEsr, l);
                         }
@@ -443,6 +472,7 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
               ),
               SizedBox(height: 20),
 
+              //计算结果第一行
               Row(
                 children: [
                   Expanded(
@@ -460,7 +490,8 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('输入纹波ΔVin:'),
-                        Text(resultDeltaVin.isEmpty ? '' : '$resultDeltaVin V'),
+                        Text(
+                            resultDeltaVin.isEmpty ? '' : '$resultDeltaVin mV'),
                       ],
                     ),
                   ),
@@ -472,13 +503,14 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                         Text('输出纹波ΔVout:'),
                         Text(resultDeltaVout.isEmpty
                             ? ''
-                            : '$resultDeltaVout V'),
+                            : '$resultDeltaVout mV'),
                       ],
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 8),
+              //计算结果第二行
               Row(
                 children: [
                   Expanded(
@@ -513,8 +545,8 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
                 ],
               ),
               SizedBox(height: 8),
+              //计算结果第三行
               Row(
-                // ignore: prefer_const_literals_to_create_immutables
                 children: [
                   Expanded(
                     child: Column(
