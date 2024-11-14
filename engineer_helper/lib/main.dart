@@ -19,12 +19,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -37,10 +39,10 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = HomePage(); // 主页面
+        page = const HomePage(); // 主页面
         break;
       case 1:
-        page = PowerPage(); // 电源页面
+        page = const PowerPage(); // 电源页面
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -88,6 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
 // 主页面
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
