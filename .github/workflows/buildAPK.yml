@@ -3,8 +3,6 @@ jobs:
   build-apk:
     name: build-apk
     runs-on: ubuntu-latest
-    env:
-      JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
     steps:
     - name: clone
       uses: actions/checkout@v4
