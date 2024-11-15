@@ -6,14 +6,13 @@ jobs:
     steps:
     - name: clone
       uses: actions/checkout@v4
-    # - name: setup Flutter
-    #   uses: subosito/flutter-action@v2.16.0
-    #   with: 
-    #     channel: stable
-    #     flutter-version: 3.24.3
-    - run: cd engineer_helper/engineer_helper
-    - run: ls
-    # - name: get flutter packages
-    #   run: flutter pub get
-    # - name: start building apk!
-    #   run: flutter build apk
+    - name: setup Flutter
+      uses: subosito/flutter-action@v2.16.0
+      with: 
+        channel: stable
+        flutter-version: 3.24.3
+    - name: get flutter packages
+      working-directory: ./engineer_helper
+      run: flutter pub get
+    - name: start building apk!
+      run: flutter build apk
