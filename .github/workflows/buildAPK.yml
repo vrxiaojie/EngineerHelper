@@ -15,4 +15,5 @@ jobs:
       working-directory: ./engineer_helper
       run: flutter pub get
     - name: start building apk!
+      working-directory: ./engineer_helper
       run: flutter build apk
