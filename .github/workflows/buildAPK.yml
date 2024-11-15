@@ -3,9 +3,16 @@ jobs:
   build-apk:
     name: build-apk
     runs-on: ubuntu-latest
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     steps:
     - name: clone
       uses: actions/checkout@v4
+    - name: setup Java17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+
     - name: setup Flutter
       uses: subosito/flutter-action@v2.16.0
       with: 
