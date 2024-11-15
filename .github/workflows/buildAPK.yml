@@ -24,7 +24,8 @@ jobs:
       working-directory: ./engineer_helper
       run: flutter build apk
     - name: Archive results
+      
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-report
-        path: build/app/outputs/flutter-apk/app-release.apk
+        path: engineer_helper/build/app/outputs/flutter-apk/app-release.apk
