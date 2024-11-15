@@ -6,27 +6,27 @@ plugins {
 }
 
 
-// def keystoreProperties = new Properties()
-//     def keystorePropertiesFile = rootProject.file('key.properties')
-//     if (keystorePropertiesFile.exists()) {
-//         keystoreProperties.load(new FileInputStream(keystorePropertiesFile))}
+def keystoreProperties = new Properties()
+    def keystorePropertiesFile = rootProject.file('key.properties')
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))}
 
 android {
-    //  signingConfigs {
+     signingConfigs {
 
-    //    release {
+       release {
 
-    //        keyAlias keystoreProperties['keyAlias']
+           keyAlias keystoreProperties['keyAlias']
 
-    //        keyPassword keystoreProperties['keyPassword']
+           keyPassword keystoreProperties['keyPassword']
 
-    //        storeFile file(keystoreProperties['storeFile'])
+           storeFile file(keystoreProperties['storeFile'])
 
-    //        storePassword keystoreProperties['storePassword']
+           storePassword keystoreProperties['storePassword']
 
-    //    }
+       }
 
-    // }
+    }
 
     namespace = "com.example.engineer_helper"
     compileSdk = flutter.compileSdkVersion
