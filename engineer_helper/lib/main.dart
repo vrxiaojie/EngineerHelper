@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = const HomePage(); // 主页面
         break;
       case 1:
-        page = const PowerPageWithDrawer(); // 电源页面（添加了抽屉菜单）
+        page = const ToolsPage(); // 工具页面（由电源页面改名并更新内容）
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -61,8 +61,90 @@ class _MyHomePageState extends State<MyHomePage> {
             label: '主页',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.power),
-            label: '电源',
+            icon: Icon(Icons.build), // 工具图标
+            label: '工具',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 新的工具页面
+class ToolsPage extends StatelessWidget {
+  const ToolsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2, // 每行显示两个按钮
+              crossAxisSpacing: 16, // 水平间距
+              mainAxisSpacing: 16, // 垂直间距
+              childAspectRatio: 3, // 控制按钮的长宽比
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100], // 按钮背景色
+                    borderRadius: BorderRadius.circular(8), // 圆角
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const PowerBoostPage()),
+                      );
+                    },
+                    child: Center(
+                      child: Text(
+                        'BOOST',
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const PowerBuckPage()),
+                      );
+                    },
+                    child: Center(
+                      child: Text(
+                        'BUCK',
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const PowerLDOPage()),
+                      );
+                    },
+                    child: Center(
+                      child: Text(
+                        'LDO',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -187,7 +269,7 @@ class PowerPageWithDrawer extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.bolt),
+              leading: const Icon(Icons.arrow_upward),
               title: const Text('BOOST'),
               onTap: () {
                 Navigator.of(context).push(
@@ -205,7 +287,7 @@ class PowerPageWithDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.electrical_services),
+              leading: const Icon(Icons.trending_down),
               title: const Text('LDO'),
               onTap: () {
                 Navigator.of(context).push(
