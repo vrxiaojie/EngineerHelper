@@ -25,7 +25,7 @@ class _PowerPageState extends State<PowerPage> {
         page = PowerBuckPage(); // BUCK子页面
         break;
       case 2:
-        page = PowerLdoPage(); // LDO子页面
+        page = PowerLDOPage(); // LDO子页面
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -181,7 +181,8 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scaffold(
+        body: SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -595,7 +596,7 @@ class _PowerBoostPageState extends State<PowerBoostPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -708,7 +709,8 @@ class _PowerBuckPageState extends State<PowerBuckPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scaffold(
+        body: SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -1117,13 +1119,13 @@ class _PowerBuckPageState extends State<PowerBuckPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
 // LDO 子页面
-class PowerLdoPage extends StatelessWidget {
-  const PowerLdoPage({super.key});
+class PowerLDOPage extends StatelessWidget {
+  const PowerLDOPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -6,8 +6,6 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyAppState extends ChangeNotifier {}
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -42,53 +40,37 @@ class _MyHomePageState extends State<MyHomePage> {
         page = const HomePage(); // 主页面
         break;
       case 1:
-        page = const PowerPage(); // 电源页面
+        page = const PowerPageWithDrawer(); // 电源页面（添加了抽屉菜单）
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Scaffold(
-        body: Row(
-          children: [
-            SafeArea(
-              child: NavigationRail(
-                extended: constraints.maxWidth >= 600,
-                minExtendedWidth: 150,
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('主页'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.power),
-                    label: Text('电源'),
-                  ),
-                ],
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (value) {
-                  setState(() {
-                    selectedIndex = value;
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: page,
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+    return Scaffold(
+      body: page,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (value) {
+          setState(() {
+            selectedIndex = value;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: '主页',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.power),
+            label: '电源',
+          ),
+        ],
+      ),
+    );
   }
 }
 
 // 主页面
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -99,14 +81,12 @@ class HomePage extends StatelessWidget {
       child: Flex(
         direction: Axis.vertical, // 设置为垂直方向布局
         children: [
-          // 第一行：两个容器
           Flexible(
-            flex: 1, // 控制占用空间比例
+            flex: 1,
             child: Row(
               children: [
-                // 第一个容器：大标题
                 Flexible(
-                  flex: 2, // 大标题占用更多空间
+                  flex: 2,
                   child: Container(
                     alignment: Alignment.center,
                     color: Colors.blue[100],
@@ -120,29 +100,26 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // 第二个容器：图片
                 Flexible(
-                  flex: 1, // 图片占用剩余空间
+                  flex: 1,
                   child: Container(
                     alignment: Alignment.center,
                     color: Colors.blue[50],
                     child: Image.asset(
-                      'assets/bilibili.png', // 确保图片存在
-                      height: 60, // 限制图片高度
-                      fit: BoxFit.contain, // 保证图片适应容器
+                      'assets/bilibili.png',
+                      height: 60,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16), // 添加空隙
-          // 第三行：GitHub logo
+          const SizedBox(height: 16),
           Flexible(
             flex: 1,
             child: GestureDetector(
               onTap: () async {
-                // 使用 url_launcher 跳转到GitHub
                 final url = Uri.parse('https://github.com');
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url);
@@ -154,15 +131,14 @@ class HomePage extends StatelessWidget {
                 alignment: Alignment.center,
                 color: Colors.blue[50],
                 child: Image.asset(
-                  'assets/github.png', // 确保图片存在
-                  height: 60, // 限制图片高度
-                  fit: BoxFit.contain, // 保证图片适应容器
+                  'assets/github.png',
+                  height: 60,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 16), // 添加空隙
-          // 第四行：版本号
+          const SizedBox(height: 16),
           Flexible(
             flex: 1,
             child: Container(
@@ -179,6 +155,68 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// 电源页面添加抽屉菜单
+class PowerPageWithDrawer extends StatelessWidget {
+  const PowerPageWithDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('电源页面'),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              child: Text(
+                '功能选项',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.bolt),
+              title: const Text('BOOST'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PowerBoostPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.arrow_downward),
+              title: const Text('BUCK'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PowerBuckPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.electrical_services),
+              title: const Text('LDO'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PowerLDOPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      body: const Center(child: Text('电源页面内容')),
     );
   }
 }
