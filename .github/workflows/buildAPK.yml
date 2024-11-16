@@ -1,33 +1,33 @@
 on: push
 jobs:
-  # build-apk:
-  #   name: build-apk
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: clone
-  #     uses: actions/checkout@v4
-  #   - name: setup Java17
-  #     uses: actions/setup-java@v3
-  #     with:
-  #       distribution: 'temurin'
-  #       java-version: '17'
+  build-apk:
+    name: build-apk
+    runs-on: ubuntu-latest
+    steps:
+    - name: clone
+      uses: actions/checkout@v4
+    - name: setup Java17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-  #   - name: setup Flutter
-  #     uses: subosito/flutter-action@v2.16.0
-  #     with: 
-  #       channel: stable
-  #       flutter-version: 3.24.3
-  #   - name: get flutter packages
-  #     working-directory: ./engineer_helper
-  #     run: flutter pub get
-  #   - name: start building apk!
-  #     working-directory: ./engineer_helper
-  #     run: flutter build apk
-  #   - name: Archive results
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: code-coverage-report
-  #       path: engineer_helper/build/app/outputs/flutter-apk/app-release.apk
+    - name: setup Flutter
+      uses: subosito/flutter-action@v2.16.0
+      with: 
+        channel: stable
+        flutter-version: 3.24.3
+    - name: get flutter packages
+      working-directory: ./engineer_helper
+      run: flutter pub get
+    - name: start building apk!
+      working-directory: ./engineer_helper
+      run: flutter build apk
+    - name: Archive results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: engineer_helper/build/app/outputs/flutter-apk/app-release.apk
 
   build-windows-exe:
     name: build-windows-exe
@@ -46,3 +46,8 @@ jobs:
     - name: start building exe!
       working-directory: ./engineer_helper
       run: flutter build windows
+    - name: Archive results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: engineer_helper/build/windows/x64/runner/Release/
