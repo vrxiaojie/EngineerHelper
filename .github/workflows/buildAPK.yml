@@ -24,8 +24,25 @@ jobs:
       working-directory: ./engineer_helper
       run: flutter build apk
     - name: Archive results
-      
       uses: actions/upload-artifact@v4
       with:
         name: code-coverage-report
         path: engineer_helper/build/app/outputs/flutter-apk/app-release.apk
+
+  build-windows-exe:
+    name: build-windows-exe
+    runs-on: windows-latest
+    steps:
+    - name: clone
+      uses: actions/checkout@v4
+    - name: setup Flutter
+      uses: subosito/flutter-action@v2.16.0
+      with: 
+        channel: stable
+        flutter-version: 3.24.3
+    - name: get flutter packages
+      working-directory: ./engineer_helper
+      run: flutter pub get
+    - name: start building exe!
+      working-directory: ./engineer_helper
+      run: flutter build windows
