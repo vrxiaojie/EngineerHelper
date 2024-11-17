@@ -78,72 +78,62 @@ class ToolsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
+      child: GridView.count(
+        crossAxisCount: 2, // 固定为两列
+        crossAxisSpacing: 16.0, // 列之间的间距
+        mainAxisSpacing: 16.0, // 行之间的间距
+        childAspectRatio: 4.5, // 控制每个按钮的宽高比（2.5 表示宽是高的 2.5 倍）
+        shrinkWrap: true, // 让 GridView 适配内容大小
         children: [
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2, // 每行显示两个按钮
-              crossAxisSpacing: 16, // 水平间距
-              mainAxisSpacing: 16, // 垂直间距
-              childAspectRatio: 3, // 控制按钮的长宽比
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue[100], // 按钮背景色
-                    borderRadius: BorderRadius.circular(8), // 圆角
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const PowerBoostPage()),
-                      );
-                    },
-                    child: Center(
-                      child: Text(
-                        'BOOST',
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const PowerBuckPage()),
-                      );
-                    },
-                    child: Center(
-                      child: Text(
-                        'BUCK',
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const PowerLDOPage()),
-                      );
-                    },
-                    child: Center(
-                      child: Text(
-                        'LDO',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PowerBoostPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[100],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8), // 按钮圆角
+              ),
+            ),
+            child: const Text(
+              'BOOST',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PowerBuckPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[100],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'BUCK',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PowerLDOPage()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[100],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'LDO',
+              style: TextStyle(color: Colors.black),
             ),
           ),
         ],
@@ -227,7 +217,7 @@ class HomePage extends StatelessWidget {
               alignment: Alignment.center,
               color: Colors.blue[100],
               child: Text(
-                'V0.0.1',
+                'v0.0.2',
                 style: Theme.of(context)
                     .textTheme
                     .headlineLarge
@@ -237,68 +227,6 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// 电源页面添加抽屉菜单
-class PowerPageWithDrawer extends StatelessWidget {
-  const PowerPageWithDrawer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('电源页面'),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              child: Text(
-                '功能选项',
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.arrow_upward),
-              title: const Text('BOOST'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PowerBoostPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.arrow_downward),
-              title: const Text('BUCK'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PowerBuckPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.trending_down),
-              title: const Text('LDO'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PowerLDOPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-      body: const Center(child: Text('电源页面内容')),
     );
   }
 }

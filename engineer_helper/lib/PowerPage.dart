@@ -3,78 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// 电源页面
-class PowerPage extends StatefulWidget {
-  const PowerPage({super.key});
-
-  @override
-  State<PowerPage> createState() => _PowerPageState();
-}
-
-class _PowerPageState extends State<PowerPage> {
-  var selectedIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = PowerBoostPage(); // BOOST子页面
-        break;
-      case 1:
-        page = PowerBuckPage(); // BUCK子页面
-        break;
-      case 2:
-        page = PowerLDOPage(); // LDO子页面
-        break;
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('电源'),
-      ),
-      body: Row(
-        children: [
-          SafeArea(
-            child: NavigationRail(
-              extended: true,
-              minExtendedWidth: 100,
-              destinations: const [
-                NavigationRailDestination(
-                  icon: Icon(Icons.trending_up),
-                  label: Text('BOOST'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.flash_on),
-                  label: Text('BUCK'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.power),
-                  label: Text('LDO'),
-                ),
-              ],
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (value) {
-                setState(() {
-                  selectedIndex = value;
-                });
-              },
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: page,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // BOOST 子页面
 class PowerBoostPage extends StatefulWidget {
   const PowerBoostPage({super.key});
@@ -722,7 +650,7 @@ class _PowerBuckPageState extends State<PowerBuckPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Boost电路参数设置'),
+          title: Text('Buck电路参数设置'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -738,10 +666,6 @@ class _PowerBuckPageState extends State<PowerBuckPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Buck电路参数设置',
-                      style: Theme.of(context).textTheme.headlineMedium),
-                  SizedBox(height: 16),
-
                   // 第一行输入框：Vinmin, Vinmax, Vout
                   Row(
                     children: [
@@ -1150,11 +1074,377 @@ class _PowerBuckPageState extends State<PowerBuckPage> {
 }
 
 // LDO 子页面
-class PowerLDOPage extends StatelessWidget {
+class PowerLDOPage extends StatefulWidget {
   const PowerLDOPage({super.key});
 
   @override
+  State<PowerLDOPage> createState() => _PowerLDOPageState();
+}
+
+class _PowerLDOPageState extends State<PowerLDOPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController vinController = TextEditingController();
+  final TextEditingController voutController = TextEditingController();
+  final TextEditingController ioutController = TextEditingController();
+  final TextEditingController vdropController = TextEditingController();
+  final TextEditingController RController = TextEditingController();
+  final TextEditingController jAController = TextEditingController();
+  final TextEditingController envTempController = TextEditingController();
+
+  String resultRmax = '',
+      resultP_R = '',
+      resultP_LDO = '',
+      resultEfficiency = '',
+      resultDeltaT = '',
+      resultJunctionTemp = '';
+  @override
+  void setDefaultValue() {
+    // 设置初始值
+    vinController.text = '5.0';
+    voutController.text = '3.3';
+    ioutController.text = '1.0';
+    vdropController.text = '1.0';
+    RController.text = '0.0';
+    jAController.text = '25';
+    envTempController.text = '25';
+    resultRmax = '';
+    resultP_R = '';
+    resultP_LDO = '';
+    resultEfficiency = '';
+    resultDeltaT = '';
+    resultJunctionTemp = '';
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setDefaultValue();
+  }
+
+  void calResult(double? vin, vout, iout, vdrop, r, jA, envtemp) {
+    //更新状态
+    resultRmax = ((vin! - vout - vdrop) / iout).toStringAsFixed(1);
+    resultP_R = (iout * iout * r).toStringAsFixed(1);
+    resultP_LDO = ((vin - iout * r - vout) * iout).toStringAsFixed(1);
+    resultEfficiency = (vout / (vin - iout * r) * 100).toStringAsFixed(1);
+    resultDeltaT = (((vin - iout * r - vout) * iout) * jA).toStringAsFixed(1);
+    resultJunctionTemp =
+        (((vin - iout * r - vout) * iout) * jA + envtemp).toStringAsFixed(1);
+
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(child: Text('LDO Page'));
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('LDO电路参数设置'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // 返回上一级页面
+            },
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 第一行输入框：Vin, Vout,iout
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: vinController,
+                          decoration: InputDecoration(
+                            labelText: '输入电压Vin',
+                            suffixText: 'V',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*$')),
+                            // 只允许数字和小数点
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '请输入Vin';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: voutController,
+                          decoration: InputDecoration(
+                            labelText: '输出电压Vout',
+                            suffixText: 'V',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '请输入Vout';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: ioutController,
+                          decoration: InputDecoration(
+                            labelText: '输出电流Iout',
+                            suffixText: 'A',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '请输入Iout';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+
+                  // 第二行输入框：Iout, f, Cin
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: vdropController,
+                          decoration: InputDecoration(
+                            labelText: '压差Vdropout',
+                            suffixText: 'V',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '请输入Vdropout';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: RController,
+                          decoration: InputDecoration(
+                            labelText: '串联分压电阻R',
+                            suffixText: 'Ω',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: jAController,
+                          decoration: InputDecoration(
+                            labelText: 'LDO热阻θjA',
+                            suffixText: '℃/W',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '请输入θjA';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+
+                  // 第三行输入框：L
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: envTempController,
+                          decoration: InputDecoration(
+                            labelText: '环境温度T',
+                            suffixText: '℃',
+                          ),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return '请输入θjA';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  // 计算按钮
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              final vin = double.tryParse(vinController.text);
+                              final vout = double.tryParse(voutController.text);
+                              final iout = double.tryParse(ioutController.text);
+                              final vdrop =
+                                  double.tryParse(vdropController.text);
+                              final r = double.tryParse(RController.text);
+                              final jA = double.tryParse(jAController.text);
+                              final envtemp =
+                                  double.tryParse(envTempController.text);
+
+                              // 检查vin 是否小于了vout
+                              if (vin! <= vout!) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('输入错误'),
+                                      content: Text('Vin 不能小于等于 Vout'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('确定'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                vinController.text =
+                                    (double.tryParse(voutController.text)! - 1)
+                                        .toString();
+                                return;
+                              }
+                              //计算结果
+                              calResult(vin, vout, iout, vdrop, r, jA, envtemp);
+                            }
+                          },
+                          icon: Icon(
+                              Icons.calculate), // Icon for calculate button
+                          label: Text('计算'),
+                        ),
+                      ),
+                      SizedBox(
+                          width:
+                              16), // Increase the space between the two buttons
+                      // 重置按钮
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            setDefaultValue(); // Reset values
+                          },
+                          icon: Icon(Icons.refresh), // Icon for reset button
+                          label: Text('重置'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
+                  //计算结果第一行
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('最大电阻值Rmax:'),
+                            Text(
+                              resultRmax.isEmpty ? '' : "$resultRmax Ω",
+                            ), // 用来显示计算结果
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('电阻功耗PR:'),
+                            Text(resultP_R.isEmpty ? '' : '$resultP_R W'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('LDO功耗PLDO:'),
+                            Text(resultP_LDO.isEmpty ? '' : '$resultP_LDO W'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  //计算结果第二行
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('LDO效率:'),
+                            Text(resultEfficiency.isEmpty
+                                ? ''
+                                : '$resultEfficiency %'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('LDO结温温升ΔT:'),
+                            Text(resultDeltaT.isEmpty ? '' : '$resultDeltaT ℃'),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('LDO结温T:'),
+                            Text(resultJunctionTemp.isEmpty
+                                ? ''
+                                : '$resultJunctionTemp ℃'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
+        ));
   }
 }
